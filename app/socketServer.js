@@ -17,39 +17,45 @@ module.exports.init = (http) => {
             onLogIn(socket, username);
         });
 
-        socket.on('disconnect', onDisconnect);
+        socket.on('disconnect', () => {
+            onDisconnect(socket);
+        });
 
-        socket.on('chat message', onChatMessage);
-
-
-
+        socket.on('chat message', msg =>{
+             onChatMessage(socket, msg);
+        })
     });
+
+    var connectUser = () => {
+        console.log('a user connected');
+        connectedUsers++;
+        io.emit('users', connectedUsers);
+    }
+
+    var onLogIn = (socket, username) => {
+        console.log('User logged in: ' + username);
+        socket.username = username;
+        socket.join(lobbyChannel);
+        io.to(socket.id).emit('update rooms', roomManager.roomsList);
+        io.to(lobbyChannel).emit('join lobby', username);
+    }
+
+    var onDisconnect = (socket) => {
+        console.log('user disconnected');
+        connectedUsers--;
+        io.to(lobbyChannel).emit('leave lobby', socket.username);
+    }
+
+    var onChatMessage = (socket, msg) => {
+        console.log('message: ' + msg);
+        console.log({
+            username: socket.username,
+            text: msg
+        })
+        io.to(lobbyChannel).emit('chat message', {
+            nickname: socket.username,
+            text: msg
+        });
+    }
 }
 
-
-var connectUser = () => {
-    console.log('a user connected');
-    connectedUsers++;
-    io.emit('users', connectedUsers);
-}
-
-var onLogIn = (socket, username) => {
-    console.log('User logged in: '+ username);
-    socket.username = username;
-    socket.join(lobbyChannel);
-    io.broadcast.to(lobbyChannel).emit('join lobby', {
-        username: username,
-        id: socket.id
-    });
-}
-
-var onDisconnect = () => {
-    console.log('user disconnected');
-    connectedUsers--;
-    io.emit('users', connectedUsers);
-}
-
-var onChatMessage = (msg) => {
-    console.log('message: ' + msg);
-    io.broadcast.to(lobbyChannel).emit('chat message', msg);
-}

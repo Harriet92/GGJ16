@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
 });
 
-http.listen(port, () => {
+http.listen(port, '0.0.0.0', () => {
     console.log('listening on *:' + port);
     SocketServer.init(http);
 });

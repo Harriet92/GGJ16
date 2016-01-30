@@ -59,6 +59,7 @@
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         var socket = io();
+        socket.emit('log in', 'emi');
   $('form').submit(function(){
     socket.emit('chat message', $('#m').val());
     $('#m').val('');
@@ -66,6 +67,13 @@
   });
   socket.on('users', function(msg){
     $('#messages').text('Connected users: ' + msg);
+  });
+  socket.on('update rooms', function(msg){
+    $('#messages').text(msg);
+  });
+  
+  socket.on('chat message rooms', function(msg){
+    $('#messages').text(msg.username + ': ' + msg.message);
   });
 
     </script>

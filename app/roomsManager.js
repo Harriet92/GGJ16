@@ -6,34 +6,52 @@ class RoomManager {
     constructor(roomsNo, usersInRoomNo) {
         this.roomsNumber = roomsNo;
         this.maxUsersInRoom= usersInRoomNo;
-        this.initRooms();
+        this.rooms = this.initRooms();
     }
     
     get roomsNo() {
         return this.roomsNumber;
     }
-
-    initRooms() {
-        this.rooms = {};
-        _.each(this.roomsNumber, (i) => {
-            this.rooms[i] = [];
+    
+    get roomsList() {
+        let result = []
+        _.each(this.rooms, room => {
+            result.push({
+                name: room.name,
+                id: room.id,
+                usersCount: room.users.length,
+                maxUsers: this.maxUsersInRoom
+            });
         });
+        return result;
+    }
+    
+    initRooms() {
+        var rooms = [];
+        _.times(this.roomsNumber, (i) => {
+            rooms.push({
+                id: i,
+                name: 'Room'+i,
+                users: []
+            });
+        });
+        return rooms;
     }
     
     joinRoom(roomId, clientId) {
-        if(this.rooms[roomId].length == this.maxUsersInRoom){
+        if(this.rooms[roomId].users.length == this.maxUsersInRoom){
             return false;
         } else {
-            this.rooms[roomId].push(clientId);
+            this.rooms[roomId].users.push(clientId);
         }
     }
     
     leaveRoom(roomId, clientId) {
-        _.pull(this.rooms[roomId], clientId);
+        _.pull(this.rooms[roomId].users, clientId);
     }
     
     usersInRoomCount(roomId) {
-        return this.rooms[roomId].length;
+        return this.rooms[roomId].users.length;
     }   
 }
 
