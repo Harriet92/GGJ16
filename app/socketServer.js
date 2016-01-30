@@ -34,6 +34,7 @@ var connectUser = () => {
 }
 
 var onLogIn = (socket, username) => {
+    console.log('User logged in: '+ username);
     socket.username = username;
     socket.join(lobbyChannel);
     io.broadcast.to(lobbyChannel).emit('join lobby', {
