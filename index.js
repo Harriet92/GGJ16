@@ -3,7 +3,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
+var port = process.env.PORT || 3000;
 var connectedUsers;
 
 app.get('/', (req, res) => {
@@ -25,7 +25,7 @@ io.on('connection', socket => {
     });
 });
 
-http.listen(3000, '0.0.0.0', () => {
+http.listen(port, () => {
     connectedUsers = 0;
-    console.log('listening on *:0000');
+    console.log('listening on *:' + port);
 });
