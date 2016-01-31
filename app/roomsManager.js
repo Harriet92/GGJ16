@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var GamesManager = require('./GamesManager.js');
 
 class RoomManager {
     constructor(roomsNo, usersInRoomNo) {
@@ -19,6 +20,7 @@ class RoomManager {
             result.push({
                 name: room.name,
                 id: room.id,
+                playersCounter: 0,
                 usersCount: room.users.length,
                 maxUsers: this.maxUsersInRoom
             });
@@ -47,29 +49,37 @@ class RoomManager {
             this.rooms[roomId].users.push({
                 username: username,
                 id: clientId,
-                isReady: true
+                order: this.rooms[roomId].playersCounter++,
+                team: _.countBy(this.rooms[roomId].users, { team: GamesManager.TeamPositive }) < (this.rooms[roomId].users.length / 2)
+                    ? GamesManager.TeamPositive : GamesManager.TeamNegative,
+                isReady: false
             });
             return null;
         }
     }
 
     leaveRoom(roomId, clientId) {
-        _.remove(this.rooms[roomId].users, { id: clientId});
-    }
+        _.remove(this.rooms[roomId].users, { id: clientId });
+    } 
 
     usersInRoomCount(roomId) {
         return this.rooms[roomId].users.length;
     }
-    
+
     roomIsReady(roomId) {
-        return _.every(this.roomsList[roomId].users, { isReady: true});
+        return this.rooms[roomId].users.length > 1 && _.every(this.rooms[roomId].users, { isReady: true });
     }
-    
+
     setAsReady(roomId, clientId) {
-        var user = _.find(this.roomsList[roomId].users, { id: clientId});
-        if(user){
+        var user = _.find(this.rooms[roomId].users, { id: clientId });
+        if (user) {
             user.isReady = true;
         }
+        return this.roomIsReady(roomId);
+    }
+    
+    getUsers(roomId){
+        return this.rooms[roomId].users;
     }
 }
 
